@@ -1,0 +1,13 @@
+pandas
+numpy
+seaborn
+opencv-python
+tensorflow
+tflearn
+pyautogui
+tqdm
+scikit-learn
+librosa
+progressbar
+imagehash
+-e.
