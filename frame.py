@@ -15,8 +15,16 @@ def crop_center_square(frame):
     start_y = (y // 2) - (min_dim // 2)
     return frame[start_y : start_y + min_dim, start_x : start_x + min_dim]
 
-def create_frames(gesture_folder, majorData, frame_size):
+def convert(gesture_folder, target_folder):
+    rootPath = os.getcwd()
+    majorData = os.path.abspath(target_folder)
+    frame_size=(224, 224)
+
+    if not exists(majorData):
+        os.makedirs(majorData)
+
     gesture_folder = os.path.abspath(gesture_folder)
+
     os.chdir(gesture_folder)
     gestures = os.listdir(os.getcwd())
 
@@ -49,7 +57,7 @@ def create_frames(gesture_folder, majorData, frame_size):
             os.chdir(video_frame)
             count = 0
 
-            while count < 60:
+            while True:
                 ret, frame = cap.read()
                 if not ret:
                     break
@@ -60,31 +68,17 @@ def create_frames(gesture_folder, majorData, frame_size):
                 framename = os.path.splitext(video)[0]
                 framename = framename + "_frame_" + str(count) + ".jpeg"
 
-                if count >10:
-                    hc.append([join(video_frame, framename), gesture, frameCount])
+                hc.append([join(video_frame, framename), gesture, frameCount])
 
-                    if not os.path.exists(framename):
-                        cv2.imwrite(framename, frame)
+                if not os.path.exists(framename):
+                    lastFrame = frame
+                    cv2.imwrite(framename, frame)
 
                 count += 1
-
-            # If less than max_frames, duplicate the last frame
-            #while count < 100:
-            #    hc.append([join(video_frame, framename), gesture, frameCount])
 
             os.chdir(gesture_path)
             cap.release()
             cv2.destroyAllWindows()
-
-def convert(gesture_folder, target_folder):
-    rootPath = os.getcwd()
-    majorData = os.path.abspath(target_folder)
-    frame_size=(112, 112)
-
-    if not exists(majorData):
-        os.makedirs(majorData)
-
-    create_frames(gesture_folder, majorData, frame_size)
 
     os.chdir(rootPath)
 

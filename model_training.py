@@ -73,15 +73,11 @@ logger.info('Testing dataset shape: {}, {} '.format(test_Xs.shape, test_targets.
 class Conv3DModel(tf.keras.Model):
     def __init__(self):
         super(Conv3DModel, self).__init__()
-
-        super(Conv3DModel, self).__init__()
         # Convolutions
-        self.convloution1 = tf.compat.v2.keras.layers.Conv3D(32, (3, 3, 3), activation='relu', name="conv1",
-                                                             data_format='channels_last', padding='SAME')
+        self.convloution1 = tf.compat.v2.keras.layers.Conv3D(32, (3, 3, 3), activation='relu', name="conv1", data_format='channels_last', padding='SAME')
         self.pooling1 = tf.keras.layers.MaxPool3D(pool_size=(2, 2, 2), data_format='channels_last', name="pool1")
-        self.convloution2 = tf.compat.v2.keras.layers.Conv3D(64, (3, 3, 3), activation='relu', name="conv2",
-                                                             data_format='channels_last', padding='SAME')
-        self.pooling2 = tf.keras.layers.MaxPool3D(pool_size=(2, 2, 2), data_format='channels_last', name="pool2")
+        self.convloution2 = tf.compat.v2.keras.layers.Conv3D(64, (3, 3, 3), activation='relu', name="conv2", data_format='channels_last', padding='SAME')
+        self.pooling2 = tf.keras.layers.MaxPool3D(pool_size=(2, 2,2), data_format='channels_last', name="pool2")
 
         # LSTM & Flatten
         self.convLSTM = tf.keras.layers.ConvLSTM2D(40, (3, 3))
@@ -89,39 +85,19 @@ class Conv3DModel(tf.keras.Model):
 
         # Dense layers
         self.d1 = tf.keras.layers.Dense(128, activation='relu', name="d1")
-        self.dropout = tf.keras.layers.Dropout(rate=0.3)
-        self.out = tf.keras.layers.Dense(len(labels), activation='softmax', name="output")
+        self.out = tf.keras.layers.Dense(len(classes), activation='softmax', name="output")
+
 
     def call(self, x):
-
-        print("input.shape", x.shape)
-
         x = self.convloution1(x)
-        print("conv1.shape", x.shape)
-
         x = self.pooling1(x)
-        print("pool1.shape", x.shape)
-
         x = self.convloution2(x)
-        print("conv2.shape", x.shape)
-
         x = self.pooling2(x)
-        print("pool2.shape", x.shape)
 
         x = self.convLSTM(x)
-        print("convLSTM.shape", x.shape)
-
         x = self.flatten(x)
-        print("flatten.shape", x.shape)
-
         x = self.d1(x)
-        print("d1.shape", x.shape)
-
-        x = self.dropout(x)
-        print("dropout.shape", x.shape)
-
         return self.out(x)
-
 
 for ind, batch in enumerate(batch_list):
 
@@ -132,12 +108,12 @@ for ind, batch in enumerate(batch_list):
 
     # choose the loss and optimizer methods
     model.compile(loss='sparse_categorical_crossentropy',
-                  optimizer=tf.keras.optimizers.Adam(lr=lr, epsilon=0.001),
+                  optimizer=tf.keras.optimizers.Adam(learning_rate=lr, epsilon=0.001),
                   metrics=['accuracy'])
 
     # include the epoch in the file name. (uses `str.format`)
     model_dir = "gesture_model/batch_{}/{}".format(batch, time.time())
-    checkpoint_path = model_dir + "/weights.{epoch:02d}-{val_loss:.3f}"
+    checkpoint_path = model_dir + "/weights.{epoch:02d}-{val_loss:.3f}.keras"
     checkpoint_dir = os.path.dirname(checkpoint_path)
 
     cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path, verbose=0, save_weights_only=False)
